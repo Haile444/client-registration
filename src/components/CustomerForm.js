@@ -1,37 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { createCustomer, updateCustomer } from '../services/api';
+ import '../styles/CustomerForm.css';
 
 const CustomerForm = ({ selectedCustomer, onSave }) => {
   const [formData, setFormData] = useState({ name: '', email: '' });
 
   useEffect(() => {
-    if (selectedCustomer) setFormData(selectedCustomer);
+    if (selectedCustomer) {
+      setFormData(selectedCustomer); // Populate form for editing
+    } else {
+      setFormData({ name: '', email: '' }); // Reset form for adding
+    }
   }, [selectedCustomer]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const saveAction = selectedCustomer
-      ? updateCustomer(selectedCustomer.id, formData)
-      : createCustomer(formData);
-
-    saveAction.then(() => onSave());
+    onSave(formData); // Pass updated data to App
+    setFormData({ name: '', email: '' }); // Reset form
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Name"
+        name="name"
         value={formData.name}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        onChange={handleChange}
+        placeholder="Name"
+        required
       />
       <input
         type="email"
-        placeholder="Email"
+        name="email"
         value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        onChange={handleChange}
+        placeholder="Email"
+        required
       />
-      <button type="submit">Save</button>
+      <button type="submit">{selectedCustomer ? 'Update' : 'Add'}</button>
     </form>
   );
 };
